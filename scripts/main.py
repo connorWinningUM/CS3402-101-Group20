@@ -1,5 +1,5 @@
 from data_processing import *
-from data_processing.mnist_preprocess import clean_data, process_data, split_data, extract_game_price_features, extract_player_history_features
+from data_processing.mnist_preprocessing import clean_data, process_data, split_data, extract_game_price_features, extract_player_history_features
 import pandas as pd
 import os
 
@@ -47,6 +47,69 @@ print("Feature extraction completed.")
 
 
 # Model Training
+from sklearn.linear_model import LinearRegression
+from sklearn.neural_network import MLPRegressor
+from sklearn.metrics import mean_squared_error
+import numpy as np
+
+experiment_results = []
+
+for dataset_name, data in results_data.items():
+    X_test = data['X_test']
+    y_test = data['y_test']
+    subsets = data['subsets']
+
+    for size, (X_train, y_train) in subsets.items():
+        print(f"\nDataset: {dataset_name}, Training size: {size}")
+
+        for run in range(3):  # repeat 3 times
+            # -------- Linear Regression --------
+            lr = LinearRegression()
+            lr.fit(X_train, y_train)
+
+            train_pred_lr = lr.predict(X_train)
+            test_pred_lr = lr.predict(X_test)
+
+            train_error_lr = mean_squared_error(y_train, train_pred_lr)
+            test_error_lr = mean_squared_error(y_test, test_pred_lr)
+
+            experiment_results.append({
+                "dataset": dataset_name,
+                "model": "LinearRegression",
+                "train_size": size,
+                "run": run,
+                "train_error": train_error_lr,
+                "test_error": test_error_lr
+            })
+
+            # -------- MLP --------
+            mlp = MLPRegressor(hidden_layer_sizes=(64, 32), max_iter=1000, random_state=None)
+
+            mlp.fit(X_train, y_train)
+
+            train_pred_mlp = mlp.predict(X_train)
+            test_pred_mlp = mlp.predict(X_test)
+
+            train_error_mlp = mean_squared_error(y_train, train_pred_mlp)
+            test_error_mlp = mean_squared_error(y_test, test_pred_mlp)
+
+            experiment_results.append({
+                "dataset": dataset_name,
+                "model": "MLP",
+                "train_size": size,
+                "run": run,
+                "train_error": train_error_mlp,
+                "test_error": test_error_mlp
+            })
+
+df_results = pd.DataFrame(experiment_results)
+
+summary = df_results.groupby(["dataset", "model", "train_size"]).agg({
+    "train_error": ["mean", "std"],
+    "test_error": ["mean", "std"]
+}).reset_index()
+
+print(summary)
 
 
 # Model Evaluation Metrics (logs and plots)

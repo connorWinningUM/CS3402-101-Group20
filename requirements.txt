@@ -3,3 +3,4 @@ numpy
 tensorflow>=2.15.0
 matplotlib
 kaggle
+scikit-learn
