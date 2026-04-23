@@ -2,6 +2,7 @@ from data_processing import *
 from data_processing.mnist_preprocessing import clean_data, process_data, split_data, extract_game_price_features, extract_player_history_features
 import pandas as pd
 import os
+from tensorflow import keras # type: ignore
 
 # Data Preprocessing
 
@@ -45,6 +46,24 @@ for platform in platforms:
 
 print("Feature extraction completed.")
 
+
+# ================== MNIST DATASET ================== #
+print("Processing MNIST dataset...")
+(x_train_mnist, y_train_mnist), (x_test_mnist, y_test_mnist) = keras.datasets.mnist.load_data()
+
+# Flatten and scale
+X_mnist = x_train_mnist.reshape(-1, 784).astype('float32') / 255.0
+X_test_mnist = x_test_mnist.reshape(-1, 784).astype('float32') / 255.0
+
+_, _, subsets_mnist = split_data(X_mnist, y_train_mnist)
+
+# Plug it into the main results dictionary
+results_data["mnist_digits"] = {
+    'X_test': X_test_mnist, 
+    'y_test': y_test_mnist, 
+    'subsets': subsets_mnist
+}
+print(f"Successfully prepared mnist dataset sizes: {[len(v[0]) for v in subsets_mnist.values()]}")
 
 # Model Training
 from sklearn.linear_model import LinearRegression

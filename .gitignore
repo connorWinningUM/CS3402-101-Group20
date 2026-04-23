@@ -3,3 +3,9 @@ data/raw/*
 data/processed/*
 results/logs/*
 results/plots/*
+
+.vscode/
+scripts/datasets/
+scripts/data_processing/__pycache__/
+
+*.zip
