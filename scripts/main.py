@@ -3,6 +3,7 @@ from data_processing.mnist_preprocessing import clean_data, process_data, split_
 import pandas as pd
 import os
 from tensorflow import keras # type: ignore
+from log import *
 
 # Data Preprocessing
 
@@ -132,3 +133,8 @@ print(summary)
 
 
 # Model Evaluation Metrics (logs and plots)
+df_results = pd.DataFrame(experiment_results)
+
+print("Generating plots...")
+plot_learning_curves(df_results)
+plot_model_comparison(df_results)
